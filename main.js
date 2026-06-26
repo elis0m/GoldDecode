@@ -142,22 +142,25 @@ function renderChart(history, period, unit) {
   s += `<path d="${fillPath}" fill="url(#cg)" clip-path="url(#cc)"/>`;
   s += `<path d="${linePath}" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#cc)"/>`;
 
+  const gold = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim();
+  const surf = getComputedStyle(document.documentElement).getPropertyValue('--surface').trim();
+
   const minX = toX(minIdx), minY = toY(rawMin);
   const minLabelY = minY + (minY < PAD.top + CH - 20 ? 14 : -8);
-  s += `<circle cx="${minX.toFixed(1)}" cy="${minY.toFixed(1)}" r="4" style="fill:#1e1a10;stroke:#C9A84C;stroke-width:2"/>`;
-  s += `<text x="${minX.toFixed(1)}" y="${minLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#C9A84C" opacity="0.9">최저</text>`;
+  s += `<circle cx="${minX.toFixed(1)}" cy="${minY.toFixed(1)}" r="4" style="fill:${surf};stroke:${gold};stroke-width:2"/>`;
+  s += `<text x="${minX.toFixed(1)}" y="${minLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="${gold}" opacity="0.9">최저</text>`;
 
   const maxX = toX(maxIdx), maxY = toY(rawMax);
   const maxLabelY = maxY + (maxY > PAD.top + 20 ? -8 : 14);
-  s += `<circle cx="${maxX.toFixed(1)}" cy="${maxY.toFixed(1)}" r="4" style="fill:#1e1a10;stroke:#C9A84C;stroke-width:2"/>`;
-  s += `<text x="${maxX.toFixed(1)}" y="${maxLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#C9A84C" opacity="0.9">최고</text>`;
+  s += `<circle cx="${maxX.toFixed(1)}" cy="${maxY.toFixed(1)}" r="4" style="fill:${surf};stroke:${gold};stroke-width:2"/>`;
+  s += `<text x="${maxX.toFixed(1)}" y="${maxLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="${gold}" opacity="0.9">최고</text>`;
 
   const lastX = toX(n - 1), lastY = toY(prices[n - 1]);
-  s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.35"/>`;
-  s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4.5" fill="#C9A84C"/>`;
+  s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="none" stroke="${gold}" stroke-width="1" opacity="0.35"/>`;
+  s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4.5" fill="${gold}"/>`;
 
-  s += `<line id="ct-xline" x1="0" y1="${PAD.top}" x2="0" y2="${PAD.top + CH}" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4,3" opacity="0.55" style="display:none"/>`;
-  s += `<circle id="ct-dot" r="4.5" style="fill:#C9A84C;stroke:#1e1a10;stroke-width:2;display:none"/>`;
+  s += `<line id="ct-xline" x1="0" y1="${PAD.top}" x2="0" y2="${PAD.top + CH}" stroke="${gold}" stroke-width="1" stroke-dasharray="4,3" opacity="0.55" style="display:none"/>`;
+  s += `<circle id="ct-dot" r="4.5" style="fill:${gold};stroke:${surf};stroke-width:2;display:none"/>`;
   s += `<rect id="ct-overlay" x="${PAD.left}" y="${PAD.top}" width="${CW}" height="${CH}" fill="transparent" style="cursor:crosshair"/>`;
 
   document.getElementById('price-chart').innerHTML = s;
@@ -322,6 +325,20 @@ function showError(msg) {
 
 // ── 초기화 ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // 테마 초기화 (저장값 복원)
+  const savedTheme = localStorage.getItem('theme');
+  const toggleBtn  = document.getElementById('theme-toggle');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light');
+    toggleBtn.textContent = '☀️';
+  }
+  toggleBtn.addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    toggleBtn.textContent = isLight ? '☀️' : '🌙';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    if (_chartHistory) renderChart(_chartHistory, _chartPeriod, _chartUnit);
+  });
+
   // 시세 로드
   loadGoldPrice();
   loadPriceChart();

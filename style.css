@@ -3,15 +3,34 @@
   --gold-light: #E8D08A;
   --gold-dark: #8B6914;
   --bg: #0f0f0f;
+  --bg-card: #1a1a1a;
   --surface: #1a1a1a;
   --surface2: #242424;
   --border: #2e2e2e;
   --text: #f0f0f0;
   --text-muted: #888;
+  --input-bg: #242424;
   --red: #e05252;
   --green: #52c98a;
   --radius: 12px;
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+body.light {
+  --gold: #8B6A14;
+  --gold-light: #C9A84C;
+  --gold-dark: #5C4509;
+  --bg: #FAFAF8;
+  --bg-card: #F0ECE4;
+  --surface: #F0ECE4;
+  --surface2: #F0ECE4;
+  --input-bg: #FFFFFF;
+  --border: #D8D2C8;
+  --text: #1C1916;
+  --text-muted: #6B6257;
+  --red: #B83232;
+  --green: #2A7A52;
+  --shadow: 0 4px 24px rgba(0,0,0,0.07);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,6 +54,30 @@ body {
   margin-bottom: 24px;
 }
 
+.theme-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--gold);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+
 .app-title {
   font-size: 1.6rem;
   font-weight: 800;
@@ -42,12 +85,19 @@ body {
   letter-spacing: -0.5px;
 }
 
-.app-title span { color: var(--text); }
+.app-subtitle {
+  font-size: 1.0rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 2px;
+  opacity: 0.85;
+}
 
 .app-slogan {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 6px;
+  opacity: 0.75;
 }
 
 /* ── 시세 표시 ── */
@@ -189,7 +239,7 @@ body {
 }
 
 input[type="number"], input[type="text"], select {
-  background: var(--surface2);
+  background: var(--input-bg, var(--surface2));
   border: 1.5px solid var(--border);
   border-radius: 8px;
   color: var(--text);
@@ -237,7 +287,7 @@ select { cursor: pointer; max-width: 100px; }
   max-width: 480px;
   padding: 16px;
   background: var(--gold);
-  color: #000;
+  color: var(--bg);
   border: none;
   border-radius: var(--radius);
   font-size: 1.05rem;
