@@ -50,7 +50,7 @@ async function loadGoldPrice() {
 }
 
 let _chartHistory = null;
-let _chartPeriod  = 12;
+let _chartPeriod  = 1;
 let _chartUnit    = 'g';
 
 function renderChart(history, period, unit) {
