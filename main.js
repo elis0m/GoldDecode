@@ -326,14 +326,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // 테마 초기화 (저장값 복원)
   const savedTheme = localStorage.getItem('theme');
   const toggleBtn  = document.getElementById('theme-toggle');
-  if (savedTheme === 'light') {
-    document.body.classList.add('light');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark');
+    toggleBtn.textContent = '🌙';
+  } else {
     toggleBtn.textContent = '☀️';
   }
   toggleBtn.addEventListener('click', () => {
-    const isLight = document.body.classList.toggle('light');
-    toggleBtn.textContent = isLight ? '☀️' : '🌙';
-    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    const isDark = document.body.classList.toggle('dark');
+    toggleBtn.textContent = isDark ? '🌙' : '☀️';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
     if (_chartHistory) renderChart(_chartHistory, _chartPeriod, _chartUnit);
   });
 
