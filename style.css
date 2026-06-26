@@ -188,7 +188,7 @@ body {
   align-items: center;
 }
 
-input[type="number"], select {
+input[type="number"], input[type="text"], select {
   background: var(--surface2);
   border: 1.5px solid var(--border);
   border-radius: 8px;
@@ -200,7 +200,7 @@ input[type="number"], select {
   width: 100%;
 }
 
-input[type="number"]:focus, select:focus {
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
   border-color: var(--gold);
 }
 

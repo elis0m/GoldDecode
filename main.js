@@ -3,6 +3,20 @@ let currentSpotPrice = null;
 let currentMode = 'forward'; // 'forward' = 순산, 'reverse' = 역산
 
 // ── 유틸 ──────────────────────────────────────────────────────────────────────
+function applyComma(input) {
+  const raw = input.value.replace(/[^0-9]/g, '');
+  if (!raw) { input.value = ''; return; }
+  const pos = input.selectionStart;
+  const prevLen = input.value.length;
+  input.value = Number(raw).toLocaleString('ko-KR');
+  // 커서 위치 보정
+  input.selectionStart = input.selectionEnd = pos + (input.value.length - prevLen);
+}
+
+function parseCommaInput(id) {
+  return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || NaN;
+}
+
 function formatKRW(n) {
   if (isNaN(n) || n === null) return '-';
   return Math.round(n).toLocaleString('ko-KR') + '원';
@@ -106,11 +120,11 @@ function onCalculate() {
 
   let result;
   if (currentMode === 'forward') {
-    const workmanship = parseFloat(document.getElementById('workmanship-input').value);
+    const workmanship = parseCommaInput('workmanship-input');
     if (isNaN(workmanship) || workmanship < 0) return showError('세공비를 입력해주세요.');
     result = calcSalePrice(spotPrice, purity, weightG, workmanship);
   } else {
-    const actualPrice = parseFloat(document.getElementById('actual-price-input').value);
+    const actualPrice = parseCommaInput('actual-price-input');
     if (isNaN(actualPrice) || actualPrice <= 0) return showError('실제 구매가를 입력해주세요.');
     result = calcWorkmanship(spotPrice, purity, weightG, actualPrice);
   }
@@ -196,12 +210,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // 금액 입력 콤마 자동 포맷
+  ['workmanship-input', 'actual-price-input', 'spot-manual'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      applyComma(this);
+    });
+  });
+
   // 계산 버튼
   document.getElementById('calc-btn').addEventListener('click', onCalculate);
 
   // 수동 시세 입력
   document.getElementById('spot-manual').addEventListener('input', e => {
-    const val = parseFloat(e.target.value);
+    const val = parseFloat(e.target.value.replace(/,/g, ''));
     if (!isNaN(val) && val > 0) currentSpotPrice = val;
   });
 });
