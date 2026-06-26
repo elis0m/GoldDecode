@@ -1,7 +1,7 @@
 {
-  "price": 196000,
+  "price": 196110.0,
   "unit": "원/g",
   "basis": "24K",
-  "date": "2026-06-26",
-  "source": "cache"
+  "date": "2026-06-25",
+  "source": "krx-openapi"
 }
