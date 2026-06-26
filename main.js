@@ -121,7 +121,11 @@ function onCalculate() {
 function showResult({ goldCost, vat, workmanship, total }) {
   document.getElementById('result-gold-cost').textContent = formatKRW(goldCost);
   document.getElementById('result-vat').textContent = formatKRW(vat);
-  document.getElementById('result-workmanship').textContent = formatKRW(workmanship);
+
+  const ratio = goldCost > 0 ? (workmanship / goldCost) * 100 : 0;
+  const ratioText = workmanship >= 0 ? ` (순금 원가 대비 ${ratio.toFixed(1)}%)` : '';
+  document.getElementById('result-workmanship').textContent = formatKRW(workmanship) + ratioText;
+
   document.getElementById('result-total').textContent = formatKRW(total);
   const section = document.getElementById('result-section');
   section.style.display = 'block';
@@ -173,6 +177,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const fromUnit = newUnit === 'g' ? 'don' : 'g';
     if (input.value) {
       input.value = convertWeight(input.value, fromUnit);
+    }
+  });
+
+  // 시세 직접 입력 토글
+  document.getElementById('spot-edit-btn').addEventListener('click', () => {
+    const row = document.getElementById('spot-manual-row');
+    row.style.display = 'flex';
+    document.getElementById('spot-manual').focus();
+  });
+  document.getElementById('spot-edit-cancel').addEventListener('click', () => {
+    document.getElementById('spot-manual-row').style.display = 'none';
+    document.getElementById('spot-manual').value = '';
+    // 취소 시 원래 로드된 시세로 복원
+    if (currentSpotPrice) {
+      document.getElementById('spot-price-display').textContent =
+        `${currentSpotPrice.toLocaleString('ko-KR')}원/g (24K)`;
     }
   });
 
