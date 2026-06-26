@@ -581,7 +581,7 @@ select { cursor: pointer; max-width: 100px; }
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: rgba(28, 24, 10, 0.88);
+  background: var(--surface);
   border: 1px solid rgba(201,168,76,0.6);
   border-radius: 7px;
   padding: 5px 11px;
