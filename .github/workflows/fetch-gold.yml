@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Install dependencies
+        run: pip install requests -q
+
       - name: Fetch KRX Gold Price
         run: python scripts/fetch_gold.py
         env:
