@@ -23,7 +23,7 @@ body.light {
   --bg: #FAFAF8;
   --bg-card: #F0ECE4;
   --surface: #F0ECE4;
-  --surface2: #F0ECE4;
+  --surface2: #E4DFD6;
   --input-bg: #FFFFFF;
   --border: #D8D2C8;
   --text: #1C1916;
@@ -437,6 +437,94 @@ select { cursor: pointer; max-width: 100px; }
   margin-top: 10px;
   line-height: 1.5;
 }
+
+/* ── 해독 사전 ── */
+.dict-card { padding: 20px; }
+
+.dict-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.dict-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+.dict-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.dict-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.dict-item {
+  border-top: 1px solid var(--border);
+}
+
+.dict-item:last-child {
+  border-bottom: none;
+}
+
+.dict-summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 2px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.dict-summary::-webkit-details-marker { display: none; }
+
+.dict-summary::after {
+  content: '﹢';
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  transition: transform 0.2s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.dict-item[open] > .dict-summary { color: var(--gold); }
+.dict-item[open] > .dict-summary::after {
+  content: '﹣';
+  color: var(--gold);
+}
+
+.dict-summary:hover { color: var(--gold); }
+
+.dict-body {
+  padding: 21px 14px 25px;
+  margin: 0 -2px 4px;
+  background: var(--surface2);
+  border-radius: 8px;
+  animation: dictOpen 0.2s ease;
+}
+
+@keyframes dictOpen {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dict-text {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 6px;
+}
+
+.dict-text strong { color: var(--text); font-weight: 700; }
 
 /* 차트 */
 .chart-wrap {

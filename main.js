@@ -396,6 +396,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // 해독 사전 — 한 개만 열리도록
+  document.querySelectorAll('.dict-item').forEach(detail => {
+    detail.addEventListener('toggle', () => {
+      if (detail.open) {
+        document.querySelectorAll('.dict-item').forEach(other => {
+          if (other !== detail) other.removeAttribute('open');
+        });
+      }
+    });
+  });
+
   // 차트 필터
   document.getElementById('chart-period-group').addEventListener('click', e => {
     const btn = e.target.closest('.chart-filter-btn[data-period]');

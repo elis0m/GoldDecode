@@ -129,67 +129,7 @@
   <!-- 정보 카드 섹션 -->
   <section class="info-section">
 
-    <!-- 금 순도 -->
-    <div class="info-card">
-      <div class="info-card-title">⚖️ 금 함량 기준</div>
-      <div class="purity-info-grid">
-        <div class="purity-info-item">
-          <div class="purity-badge" style="background:rgba(201,168,76,0.2);border-color:var(--gold);">24K</div>
-          <div class="purity-detail">
-            <span class="purity-pct">99.9%</span>
-            <span class="purity-desc">순금. 변형이 쉬워 주로 골드바·투자용</span>
-          </div>
-        </div>
-        <div class="purity-info-item">
-          <div class="purity-badge" style="background:rgba(201,168,76,0.12);border-color:#a88c40;">18K</div>
-          <div class="purity-detail">
-            <span class="purity-pct">75.0%</span>
-            <span class="purity-desc">악세사리에 가장 많이 쓰임. 내구성·광택 균형</span>
-          </div>
-        </div>
-        <div class="purity-info-item">
-          <div class="purity-badge" style="background:rgba(201,168,76,0.08);border-color:#7a6430;">14K</div>
-          <div class="purity-detail">
-            <span class="purity-pct">58.5%</span>
-            <span class="purity-desc">단단하고 저렴. 일상용 반지·팔찌에 적합</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 살때 팔때 차이 -->
-    <div class="info-card">
-      <div class="info-card-title">↕️ 살 때 vs 팔 때</div>
-      <table class="info-table">
-        <thead>
-          <tr><th></th><th>살 때 (매입가)</th><th>팔 때 (매도가)</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>기준</td>
-            <td>시세 + 부가세(10%) + 세공비</td>
-            <td>시세 × 순도 × 무게</td>
-          </tr>
-          <tr>
-            <td>부가세</td>
-            <td>포함 (소비자 부담)</td>
-            <td>없음</td>
-          </tr>
-          <tr>
-            <td>세공비</td>
-            <td>포함</td>
-            <td>미포함 (원자재 가치만)</td>
-          </tr>
-          <tr class="info-table-highlight">
-            <td>결론</td>
-            <td colspan="2">살 때보다 팔 때 20~40% 손해가 일반적</td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="info-note">💡 팔 때는 세공비와 부가세를 되돌려받지 못하므로, 구매 직후 되팔면 손실이 큽니다.</p>
-    </div>
-
-    <!-- 최근 금 시세 추이 -->
+    <!-- 금 시세 추이 (최상단) -->
     <div class="info-card">
       <div class="info-card-title">📈 최근 금 시세 추이 (24K)</div>
       <div class="chart-filters">
@@ -209,6 +149,90 @@
         <div id="chart-tooltip" class="chart-tooltip" style="display:none;"></div>
       </div>
       <p class="info-note" id="chart-note"></p>
+    </div>
+
+    <!-- 해독 사전 -->
+    <div class="info-card dict-card">
+      <div class="dict-header">
+        <span class="dict-icon">🔍</span>
+        <div>
+          <div class="dict-title">금값 해독 사전</div>
+          <div class="dict-sub">금을 사기 전, 알아두면 손해 보지 않는 것들</div>
+        </div>
+      </div>
+
+      <details class="dict-item">
+        <summary class="dict-summary">⚖️ 금 함량 기준 (K)</summary>
+        <div class="dict-body">
+          <div class="purity-info-grid">
+            <div class="purity-info-item">
+              <div class="purity-badge" style="background:rgba(201,168,76,0.2);border-color:var(--gold);">24K</div>
+              <div class="purity-detail">
+                <span class="purity-pct">99.9%</span>
+                <span class="purity-desc">순금. 변형이 쉬워 주로 골드바·투자용</span>
+              </div>
+            </div>
+            <div class="purity-info-item">
+              <div class="purity-badge" style="background:rgba(201,168,76,0.12);border-color:#a88c40;">18K</div>
+              <div class="purity-detail">
+                <span class="purity-pct">75.0%</span>
+                <span class="purity-desc">악세사리에 가장 많이 쓰임. 내구성·광택 균형</span>
+              </div>
+            </div>
+            <div class="purity-info-item">
+              <div class="purity-badge" style="background:rgba(201,168,76,0.08);border-color:#7a6430;">14K</div>
+              <div class="purity-detail">
+                <span class="purity-pct">58.5%</span>
+                <span class="purity-desc">단단하고 저렴. 일상용 반지·팔찌에 적합</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="dict-item">
+        <summary class="dict-summary">↕️ 살 때 vs 팔 때</summary>
+        <div class="dict-body">
+          <table class="info-table">
+            <thead>
+              <tr><th></th><th>살 때</th><th>팔 때</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>기준</td><td>시세 + 부가세 + 세공비</td><td>시세 × 순도 × 무게</td></tr>
+              <tr><td>부가세</td><td>포함 (소비자 부담)</td><td>없음</td></tr>
+              <tr><td>세공비</td><td>포함</td><td>미포함</td></tr>
+              <tr class="info-table-highlight"><td>결론</td><td colspan="2">살 때보다 팔 때 20~40% 손해가 일반적</td></tr>
+            </tbody>
+          </table>
+          <p class="info-note" style="margin-top:10px;">💡 세공비·부가세는 되돌려받지 못해, 구매 직후 되팔면 손실이 큽니다.</p>
+        </div>
+      </details>
+
+      <details class="dict-item">
+        <summary class="dict-summary">🔨 세공비란?</summary>
+        <div class="dict-body">
+          <p class="dict-text">세공비는 금 원자재를 반지·목걸이 등의 형태로 가공하는 데 드는 인건비·기술료입니다.</p>
+          <p class="dict-text">같은 무게의 금이라도 세공비는 디자인 복잡도, 업체, 브랜드에 따라 수만~수십만 원까지 차이가 납니다.</p>
+          <p class="info-note" style="margin-top:8px;">💡 순금 원가 대비 세공비 비율이 <strong>30% 이하</strong>면 합리적, <strong>50% 이상</strong>이면 비싼 편입니다.</p>
+        </div>
+      </details>
+
+      <details class="dict-item">
+        <summary class="dict-summary">💸 부가세는 왜 내나?</summary>
+        <div class="dict-body">
+          <p class="dict-text">금 악세사리는 소비재로 분류되어 구매 시 <strong>부가가치세 10%</strong>가 붙습니다 (부가가치세법 제14조).</p>
+          <p class="dict-text">반면 순금 골드바는 금융투자 상품으로 취급해 부가세가 면제되는 경우도 있습니다.</p>
+          <p class="info-note" style="margin-top:8px;">💡 팔 때는 부가세를 돌려받지 못합니다. 투자 목적이라면 골드바·KRX 금시장을 고려하세요.</p>
+        </div>
+      </details>
+
+      <details class="dict-item">
+        <summary class="dict-summary">📦 돈(錢)이란 단위?</summary>
+        <div class="dict-body">
+          <p class="dict-text">돈(錢)은 한국 전통 무게 단위로, <strong>1돈 = 3.75g</strong>입니다.</p>
+          <p class="dict-text">금방에서는 보통 돈 단위로 가격을 표시합니다. 예를 들어 반지 한 개가 "2돈짜리"라면 7.5g입니다.</p>
+        </div>
+      </details>
     </div>
 
   </section>
