@@ -235,7 +235,6 @@ function setSpotStatus(status) {
     document.getElementById('spot-badge').textContent = '⚠️ 수동 입력 필요';
     document.getElementById('spot-badge').className = 'spot-badge error';
     info.style.display = 'flex';
-    manual.style.display = 'flex';
   }
 }
 
@@ -375,16 +374,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // 시세 직접 입력 토글
   document.getElementById('spot-edit-btn').addEventListener('click', () => {
     const row = document.getElementById('spot-manual-row');
-    row.style.display = 'flex';
-    document.getElementById('spot-manual').focus();
-  });
-  document.getElementById('spot-edit-cancel').addEventListener('click', () => {
-    document.getElementById('spot-manual-row').style.display = 'none';
-    document.getElementById('spot-manual').value = '';
-    // 취소 시 원래 로드된 시세로 복원
-    if (currentSpotPrice) {
-      document.getElementById('spot-price-display').textContent =
-        `${currentSpotPrice.toLocaleString('ko-KR')}원/g (24K)`;
+    const isOpen = row.style.display === 'flex';
+    if (isOpen) {
+      row.style.display = 'none';
+      document.getElementById('spot-manual').value = '';
+      if (currentSpotPrice) {
+        document.getElementById('spot-price-display').textContent =
+          `${currentSpotPrice.toLocaleString('ko-KR')}원/g (24K)`;
+      }
+    } else {
+      row.style.display = 'flex';
+      document.getElementById('spot-manual').focus();
     }
   });
 
