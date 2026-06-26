@@ -121,6 +121,88 @@
     <p class="result-note" id="result-note"></p>
   </div>
 
+  <!-- 정보 카드 섹션 -->
+  <section class="info-section">
+
+    <!-- 금 순도 -->
+    <div class="info-card">
+      <div class="info-card-title">⚖️ 금 순도(함량) 기준</div>
+      <div class="purity-info-grid">
+        <div class="purity-info-item">
+          <div class="purity-badge" style="background:rgba(201,168,76,0.2);border-color:var(--gold);">24K</div>
+          <div class="purity-detail">
+            <span class="purity-pct">99.9%</span>
+            <span class="purity-desc">순금. 변형이 쉬워 주로 골드바·투자용</span>
+          </div>
+        </div>
+        <div class="purity-info-item">
+          <div class="purity-badge" style="background:rgba(201,168,76,0.12);border-color:#a88c40;">18K</div>
+          <div class="purity-detail">
+            <span class="purity-pct">75.0%</span>
+            <span class="purity-desc">악세사리에 가장 많이 쓰임. 내구성·광택 균형</span>
+          </div>
+        </div>
+        <div class="purity-info-item">
+          <div class="purity-badge" style="background:rgba(201,168,76,0.08);border-color:#7a6430;">14K</div>
+          <div class="purity-detail">
+            <span class="purity-pct">58.5%</span>
+            <span class="purity-desc">단단하고 저렴. 일상용 반지·팔찌에 적합</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 살때 팔때 차이 -->
+    <div class="info-card">
+      <div class="info-card-title">↕️ 살 때 vs 팔 때</div>
+      <table class="info-table">
+        <thead>
+          <tr><th></th><th>살 때 (매입가)</th><th>팔 때 (매도가)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>기준</td>
+            <td>시세 + 부가세(10%) + 세공비</td>
+            <td>시세 × 순도 × 무게</td>
+          </tr>
+          <tr>
+            <td>부가세</td>
+            <td>포함 (소비자 부담)</td>
+            <td>없음</td>
+          </tr>
+          <tr>
+            <td>세공비</td>
+            <td>포함</td>
+            <td>미포함 (원자재 가치만)</td>
+          </tr>
+          <tr class="info-table-highlight">
+            <td>결론</td>
+            <td colspan="2">살 때보다 팔 때 20~40% 손해가 일반적</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="info-note">💡 팔 때는 세공비와 부가세를 되돌려받지 못하므로, 구매 직후 되팔면 손실이 큽니다.</p>
+    </div>
+
+    <!-- 최근 금 시세 추이 -->
+    <div class="info-card">
+      <div class="info-card-title">📈 최근 금 시세 추이 (24K · 원/g)</div>
+      <div class="chart-wrap">
+        <svg id="price-chart" width="100%" height="140" viewBox="0 0 440 140" preserveAspectRatio="none"></svg>
+        <div class="chart-labels">
+          <span id="chart-label-start"></span>
+          <span id="chart-label-end"></span>
+        </div>
+        <div class="chart-range">
+          <span id="chart-min"></span>
+          <span id="chart-max"></span>
+        </div>
+      </div>
+      <p class="info-note" id="chart-note"></p>
+    </div>
+
+  </section>
+
   <!-- 푸터 -->
   <footer>
     <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다.</p>

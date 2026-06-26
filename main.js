@@ -49,12 +49,64 @@ async function loadGoldPrice() {
   setSpotStatus('manual');
 }
 
+async function loadPriceChart() {
+  try {
+    const res = await fetch('./data/gold-history.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) return;
+    const history = await res.json();
+    if (!Array.isArray(history) || history.length < 2) return;
+
+    const W = 440, H = 140, PAD = { top: 12, bottom: 8, left: 4, right: 4 };
+    const prices = history.map(h => h.price);
+    const minP = Math.min(...prices);
+    const maxP = Math.max(...prices);
+    const range = maxP - minP || 1;
+    const n = history.length;
+
+    const toX = i => PAD.left + (i / (n - 1)) * (W - PAD.left - PAD.right);
+    const toY = p => PAD.top + (1 - (p - minP) / range) * (H - PAD.top - PAD.bottom);
+
+    // 라인 좌표
+    const pts = history.map((h, i) => `${toX(i).toFixed(1)},${toY(h.price).toFixed(1)}`);
+
+    // 채우기 영역 (라인 아래)
+    const fillPts = [
+      `${toX(0).toFixed(1)},${H - PAD.bottom}`,
+      ...pts,
+      `${toX(n - 1).toFixed(1)},${H - PAD.bottom}`,
+    ].join(' ');
+
+    const svg = document.getElementById('price-chart');
+    svg.innerHTML = `
+      <defs>
+        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#C9A84C" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      <polygon points="${fillPts}" fill="url(#chartGrad)"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${toX(n-1).toFixed(1)}" cy="${toY(prices[n-1]).toFixed(1)}" r="3.5" fill="#C9A84C"/>
+    `;
+
+    // 레이블
+    document.getElementById('chart-label-start').textContent = history[0].date;
+    document.getElementById('chart-label-end').textContent   = history[n - 1].date;
+    document.getElementById('chart-min').textContent = `최저 ${Math.round(minP).toLocaleString('ko-KR')}원`;
+    document.getElementById('chart-max').textContent = `최고 ${Math.round(maxP).toLocaleString('ko-KR')}원`;
+
+    document.getElementById('chart-note').textContent =
+      `${history[0].date} ~ ${history[n-1].date} · ${n}거래일 기준`;
+  } catch (_) {}
+}
+
 function setSpotPrice(price, source, date) {
   currentSpotPrice = price;
   document.getElementById('spot-price-display').textContent =
     `${price.toLocaleString('ko-KR')}원/g (24K)`;
   const badge = document.getElementById('spot-badge');
   badge.textContent = `🕐 ${date} 기준 (KRX)`;
+  updateRefTable(price);
   badge.className = 'spot-badge cached';
   document.getElementById('spot-manual-row').style.display = 'none';
   document.getElementById('spot-info').style.display = 'flex';
@@ -163,6 +215,7 @@ function showError(msg) {
 document.addEventListener('DOMContentLoaded', () => {
   // 시세 로드
   loadGoldPrice();
+  loadPriceChart();
 
   // 모드 토글
   document.querySelectorAll('input[name="mode"]').forEach(radio => {

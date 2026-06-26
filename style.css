@@ -300,6 +300,118 @@ select { cursor: pointer; max-width: 100px; }
   display: none;
 }
 
+/* ── 정보 카드 섹션 ── */
+.info-section {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.info-card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+
+/* 순도 카드 */
+.purity-info-grid { display: flex; flex-direction: column; gap: 10px; }
+
+.purity-info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.purity-badge {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.purity-detail { display: flex; flex-direction: column; gap: 2px; }
+.purity-pct { font-size: 1rem; font-weight: 700; color: var(--text); }
+.purity-desc { font-size: 0.78rem; color: var(--text-muted); }
+
+/* 테이블 */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.info-table th, .info-table td {
+  padding: 7px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.info-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
+.info-table td:not(:first-child) { color: var(--text); }
+.info-table td:first-child { color: var(--text-muted); white-space: nowrap; }
+
+.info-table-highlight td {
+  color: var(--gold) !important;
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.info-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* 차트 */
+.chart-wrap { margin-top: 4px; }
+
+#price-chart {
+  display: block;
+  overflow: visible;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.chart-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 /* ── 푸터 ── */
 footer {
   width: 100%;
