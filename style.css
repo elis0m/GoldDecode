@@ -402,19 +402,56 @@ select { cursor: pointer; max-width: 100px; }
   overflow: visible;
 }
 
+.chart-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.chart-filter-group {
+  display: flex;
+  gap: 4px;
+}
+
+.chart-filter-btn {
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  border-radius: 20px;
+  border: 1px solid rgba(201,168,76,0.3);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.chart-filter-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.chart-filter-btn.active {
+  background: rgba(201,168,76,0.18);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 600;
+}
+
 .chart-tooltip {
   position: absolute;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: var(--bg-card);
-  border: 1px solid rgba(201,168,76,0.55);
+  background: rgba(28, 24, 10, 0.88);
+  border: 1px solid rgba(201,168,76,0.6);
   border-radius: 7px;
   padding: 5px 11px;
   pointer-events: none;
   z-index: 10;
   white-space: nowrap;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
 }
 
 .tip-date  { font-size: 0.72rem; color: var(--text-muted); }

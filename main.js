@@ -49,156 +49,164 @@ async function loadGoldPrice() {
   setSpotStatus('manual');
 }
 
+let _chartHistory = null;
+let _chartPeriod  = 12;
+let _chartUnit    = 'g';
+
+function renderChart(history, period, unit) {
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - period);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const slice = history.filter(h => h.date >= cutoffStr);
+  if (slice.length < 2) return;
+
+  const mult = unit === 'don' ? DON_TO_GRAM : 1;
+  const unitLabel = unit === 'don' ? '원/돈' : '원/g';
+
+  const W = 600, H = 220;
+  const PAD = { top: 20, right: 24, bottom: 38, left: 74 };
+  const CW = W - PAD.left - PAD.right;
+  const CH = H - PAD.top - PAD.bottom;
+  const n = slice.length;
+  const prices = slice.map(h => h.price * mult);
+
+  const rawMin = Math.min(...prices);
+  const rawMax = Math.max(...prices);
+  const gap = (rawMax - rawMin) * 0.08;
+  const yMin = rawMin - gap;
+  const yMax = rawMax + gap;
+  const yRange = yMax - yMin;
+
+  const toX = i => PAD.left + (i / (n - 1)) * CW;
+  const toY = p => PAD.top + (1 - (p - yMin) / yRange) * CH;
+
+  const tickDiv = unit === 'don' ? 10000 : 10000;
+  const tickStep = Math.ceil((rawMax - rawMin) / 4 / tickDiv) * tickDiv || tickDiv;
+  const tickBase = Math.floor(rawMin / tickDiv) * tickDiv;
+  const yTicks = [];
+  for (let v = tickBase - tickStep; v <= rawMax + tickStep * 1.5; v += tickStep) {
+    if (v >= yMin && v <= yMax) yTicks.push(v);
+  }
+
+  const monthLabels = [];
+  let lastMonth = null;
+  slice.forEach((h, i) => {
+    const m = h.date.slice(0, 7);
+    if (m !== lastMonth) { monthLabels.push({ i, label: h.date.slice(5, 7) + '월' }); lastMonth = m; }
+  });
+
+  const pts = slice.map((h, i) => ({ x: toX(i), y: toY(h.price * mult) }));
+  function bezierPath(ps) {
+    let d = `M ${ps[0].x.toFixed(1)} ${ps[0].y.toFixed(1)}`;
+    for (let i = 1; i < ps.length; i++) {
+      const mx = ((ps[i-1].x + ps[i].x) / 2).toFixed(1);
+      d += ` C ${mx} ${ps[i-1].y.toFixed(1)} ${mx} ${ps[i].y.toFixed(1)} ${ps[i].x.toFixed(1)} ${ps[i].y.toFixed(1)}`;
+    }
+    return d;
+  }
+  const linePath = bezierPath(pts);
+  const baseY = (PAD.top + CH).toFixed(1);
+  const fillPath = `${linePath} L ${pts[n-1].x.toFixed(1)} ${baseY} L ${pts[0].x.toFixed(1)} ${baseY} Z`;
+
+  const minIdx = prices.indexOf(rawMin);
+  const maxIdx = prices.indexOf(rawMax);
+
+  let s = `<defs>
+    <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#C9A84C" stop-opacity="0.02"/>
+    </linearGradient>
+    <clipPath id="cc">
+      <rect x="${PAD.left}" y="${PAD.top}" width="${CW}" height="${CH}"/>
+    </clipPath>
+  </defs>`;
+
+  yTicks.forEach(v => {
+    const y = toY(v).toFixed(1);
+    const label = unit === 'don'
+      ? (v / 10000).toFixed(0) + '만'
+      : (v / 10000).toFixed(0) + '만';
+    s += `<line x1="${PAD.left}" y1="${y}" x2="${PAD.left + CW}" y2="${y}" stroke="rgba(128,128,128,0.15)" stroke-width="1" stroke-dasharray="3,4"/>`;
+    s += `<text x="${PAD.left - 7}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="11" fill="rgba(160,160,160,0.9)">${label}</text>`;
+  });
+
+  s += `<line x1="${PAD.left}" y1="${PAD.top + CH}" x2="${PAD.left + CW}" y2="${PAD.top + CH}" stroke="rgba(128,128,128,0.25)" stroke-width="1"/>`;
+
+  monthLabels.forEach(({ i, label }) => {
+    const x = toX(i);
+    if (x < PAD.left + 18 || x > PAD.left + CW - 18) return;
+    s += `<line x1="${x.toFixed(1)}" y1="${PAD.top + CH}" x2="${x.toFixed(1)}" y2="${PAD.top + CH + 4}" stroke="rgba(128,128,128,0.3)" stroke-width="1"/>`;
+    s += `<text x="${x.toFixed(1)}" y="${PAD.top + CH + 15}" text-anchor="middle" font-size="10" fill="rgba(160,160,160,0.85)">${label}</text>`;
+  });
+
+  s += `<path d="${fillPath}" fill="url(#cg)" clip-path="url(#cc)"/>`;
+  s += `<path d="${linePath}" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#cc)"/>`;
+
+  const minX = toX(minIdx), minY = toY(rawMin);
+  const minLabelY = minY + (minY < PAD.top + CH - 20 ? 14 : -8);
+  s += `<circle cx="${minX.toFixed(1)}" cy="${minY.toFixed(1)}" r="4" style="fill:#1e1a10;stroke:#C9A84C;stroke-width:2"/>`;
+  s += `<text x="${minX.toFixed(1)}" y="${minLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#C9A84C" opacity="0.9">최저</text>`;
+
+  const maxX = toX(maxIdx), maxY = toY(rawMax);
+  const maxLabelY = maxY + (maxY > PAD.top + 20 ? -8 : 14);
+  s += `<circle cx="${maxX.toFixed(1)}" cy="${maxY.toFixed(1)}" r="4" style="fill:#1e1a10;stroke:#C9A84C;stroke-width:2"/>`;
+  s += `<text x="${maxX.toFixed(1)}" y="${maxLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#C9A84C" opacity="0.9">최고</text>`;
+
+  const lastX = toX(n - 1), lastY = toY(prices[n - 1]);
+  s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.35"/>`;
+  s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4.5" fill="#C9A84C"/>`;
+
+  s += `<line id="ct-xline" x1="0" y1="${PAD.top}" x2="0" y2="${PAD.top + CH}" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4,3" opacity="0.55" style="display:none"/>`;
+  s += `<circle id="ct-dot" r="4.5" style="fill:#C9A84C;stroke:#1e1a10;stroke-width:2;display:none"/>`;
+  s += `<rect id="ct-overlay" x="${PAD.left}" y="${PAD.top}" width="${CW}" height="${CH}" fill="transparent" style="cursor:crosshair"/>`;
+
+  document.getElementById('price-chart').innerHTML = s;
+
+  const overlay = document.getElementById('ct-overlay');
+  const xline   = document.getElementById('ct-xline');
+  const dot     = document.getElementById('ct-dot');
+  const tooltip = document.getElementById('chart-tooltip');
+  const svgEl   = document.getElementById('price-chart');
+  const wrapEl  = svgEl.closest('.chart-wrap');
+
+  overlay.addEventListener('mousemove', e => {
+    const svgRect  = svgEl.getBoundingClientRect();
+    const wrapRect = wrapEl.getBoundingClientRect();
+    const svgX     = (e.clientX - svgRect.left) * (W / svgRect.width);
+    const idx      = Math.max(0, Math.min(n - 1, Math.round((svgX - PAD.left) / CW * (n - 1))));
+    const h        = slice[idx];
+    const cx = toX(idx), cy = toY(h.price * mult);
+
+    xline.setAttribute('x1', cx.toFixed(1)); xline.setAttribute('x2', cx.toFixed(1));
+    xline.style.display = '';
+    dot.setAttribute('cx', cx.toFixed(1)); dot.setAttribute('cy', cy.toFixed(1));
+    dot.style.display = '';
+
+    const tipX = (cx / W) * svgRect.width + svgRect.left - wrapRect.left;
+    const tipY = (cy / H) * svgRect.height;
+    tooltip.style.display = 'flex';
+    tooltip.style.left    = Math.min(tipX + 14, wrapRect.width - 155) + 'px';
+    tooltip.style.top     = Math.max(tipY - 44, 4) + 'px';
+    tooltip.innerHTML     = `<span class="tip-date">${h.date}</span><span class="tip-price">${Math.round(h.price * mult).toLocaleString('ko-KR')} ${unitLabel}</span>`;
+  });
+
+  overlay.addEventListener('mouseleave', () => {
+    xline.style.display = dot.style.display = 'none';
+    tooltip.style.display = 'none';
+  });
+
+  document.getElementById('chart-note').textContent =
+    `${slice[0].date} ~ ${slice[n-1].date} · ${n}거래일 기준`;
+}
+
 async function loadPriceChart() {
   try {
     const res = await fetch('./data/gold-history.json', { signal: AbortSignal.timeout(5000) });
     if (!res.ok) return;
     const history = await res.json();
     if (!Array.isArray(history) || history.length < 2) return;
-
-    const W = 600, H = 220;
-    const PAD = { top: 20, right: 24, bottom: 38, left: 74 };
-    const CW = W - PAD.left - PAD.right;
-    const CH = H - PAD.top - PAD.bottom;
-    const n = history.length;
-    const prices = history.map(h => h.price);
-
-    const rawMin = Math.min(...prices);
-    const rawMax = Math.max(...prices);
-    const gap = (rawMax - rawMin) * 0.08;
-    const yMin = rawMin - gap;
-    const yMax = rawMax + gap;
-    const yRange = yMax - yMin;
-
-    const toX = i => PAD.left + (i / (n - 1)) * CW;
-    const toY = p => PAD.top + (1 - (p - yMin) / yRange) * CH;
-
-    // Y축 눈금 (만 단위, 5개)
-    const tickStep = Math.ceil((rawMax - rawMin) / 4 / 10000) * 10000 || 10000;
-    const tickBase = Math.floor(rawMin / 10000) * 10000;
-    const yTicks = [];
-    for (let v = tickBase - tickStep; v <= rawMax + tickStep * 1.5; v += tickStep) {
-      if (v >= yMin && v <= yMax) yTicks.push(v);
-    }
-
-    // X축 월 레이블
-    const monthLabels = [];
-    let lastMonth = null;
-    history.forEach((h, i) => {
-      const m = h.date.slice(0, 7);
-      if (m !== lastMonth) { monthLabels.push({ i, label: h.date.slice(5, 7) + '월' }); lastMonth = m; }
-    });
-
-    // 부드러운 베지어 경로
-    const pts = history.map((h, i) => ({ x: toX(i), y: toY(h.price) }));
-    function bezierPath(ps) {
-      let d = `M ${ps[0].x.toFixed(1)} ${ps[0].y.toFixed(1)}`;
-      for (let i = 1; i < ps.length; i++) {
-        const mx = ((ps[i-1].x + ps[i].x) / 2).toFixed(1);
-        d += ` C ${mx} ${ps[i-1].y.toFixed(1)} ${mx} ${ps[i].y.toFixed(1)} ${ps[i].x.toFixed(1)} ${ps[i].y.toFixed(1)}`;
-      }
-      return d;
-    }
-    const linePath = bezierPath(pts);
-    const baseY = (PAD.top + CH).toFixed(1);
-    const fillPath = `${linePath} L ${pts[n-1].x.toFixed(1)} ${baseY} L ${pts[0].x.toFixed(1)} ${baseY} Z`;
-
-    const minIdx = prices.indexOf(rawMin);
-    const maxIdx = prices.indexOf(rawMax);
-
-    // SVG 렌더링
-    let s = `<defs>
-      <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.30"/>
-        <stop offset="100%" stop-color="#C9A84C" stop-opacity="0.02"/>
-      </linearGradient>
-      <clipPath id="cc">
-        <rect x="${PAD.left}" y="${PAD.top}" width="${CW}" height="${CH}"/>
-      </clipPath>
-    </defs>`;
-
-    // Y 그리드
-    yTicks.forEach(v => {
-      const y = toY(v).toFixed(1);
-      s += `<line x1="${PAD.left}" y1="${y}" x2="${PAD.left + CW}" y2="${y}" stroke="rgba(128,128,128,0.15)" stroke-width="1" stroke-dasharray="3,4"/>`;
-      s += `<text x="${PAD.left - 7}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="11" fill="rgba(160,160,160,0.9)">${(v / 10000).toFixed(0)}만</text>`;
-    });
-
-    // X축 선
-    s += `<line x1="${PAD.left}" y1="${PAD.top + CH}" x2="${PAD.left + CW}" y2="${PAD.top + CH}" stroke="rgba(128,128,128,0.25)" stroke-width="1"/>`;
-
-    // X축 월 레이블
-    monthLabels.forEach(({ i, label }) => {
-      const x = toX(i);
-      if (x < PAD.left + 18 || x > PAD.left + CW - 18) return;
-      s += `<line x1="${x.toFixed(1)}" y1="${PAD.top + CH}" x2="${x.toFixed(1)}" y2="${PAD.top + CH + 4}" stroke="rgba(128,128,128,0.3)" stroke-width="1"/>`;
-      s += `<text x="${x.toFixed(1)}" y="${PAD.top + CH + 15}" text-anchor="middle" font-size="10" fill="rgba(160,160,160,0.85)">${label}</text>`;
-    });
-
-    // 그라디언트 채우기 + 라인
-    s += `<path d="${fillPath}" fill="url(#cg)" clip-path="url(#cc)"/>`;
-    s += `<path d="${linePath}" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" clip-path="url(#cc)"/>`;
-
-    // 최저 마커
-    const minX = toX(minIdx), minY = toY(rawMin);
-    const minLabelY = minY + (minY < PAD.top + CH - 20 ? 14 : -8);
-    s += `<circle cx="${minX.toFixed(1)}" cy="${minY.toFixed(1)}" r="4" style="fill:#1e1a10;stroke:#C9A84C;stroke-width:2"/>`;
-    s += `<text x="${minX.toFixed(1)}" y="${minLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#C9A84C" opacity="0.9">최저</text>`;
-
-    // 최고 마커
-    const maxX = toX(maxIdx), maxY = toY(rawMax);
-    const maxLabelY = maxY + (maxY > PAD.top + 20 ? -8 : 14);
-    s += `<circle cx="${maxX.toFixed(1)}" cy="${maxY.toFixed(1)}" r="4" style="fill:#1e1a10;stroke:#C9A84C;stroke-width:2"/>`;
-    s += `<text x="${maxX.toFixed(1)}" y="${maxLabelY.toFixed(1)}" text-anchor="middle" font-size="10" fill="#C9A84C" opacity="0.9">최고</text>`;
-
-    // 최신 가격 점
-    const lastX = toX(n - 1), lastY = toY(prices[n - 1]);
-    s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="7" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.35"/>`;
-    s += `<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4.5" fill="#C9A84C"/>`;
-
-    // 툴팁용 오버레이
-    s += `<line id="ct-xline" x1="0" y1="${PAD.top}" x2="0" y2="${PAD.top + CH}" stroke="#C9A84C" stroke-width="1" stroke-dasharray="4,3" opacity="0.55" style="display:none"/>`;
-    s += `<circle id="ct-dot" r="4.5" style="fill:#C9A84C;stroke:#1e1a10;stroke-width:2;display:none"/>`;
-    s += `<rect id="ct-overlay" x="${PAD.left}" y="${PAD.top}" width="${CW}" height="${CH}" fill="transparent" style="cursor:crosshair"/>`;
-
-    document.getElementById('price-chart').innerHTML = s;
-
-    // 툴팁 인터랙션
-    const overlay  = document.getElementById('ct-overlay');
-    const xline    = document.getElementById('ct-xline');
-    const dot      = document.getElementById('ct-dot');
-    const tooltip  = document.getElementById('chart-tooltip');
-    const svgEl    = document.getElementById('price-chart');
-    const wrapEl   = svgEl.closest('.chart-wrap');
-
-    overlay.addEventListener('mousemove', e => {
-      const svgRect  = svgEl.getBoundingClientRect();
-      const wrapRect = wrapEl.getBoundingClientRect();
-      const svgX     = (e.clientX - svgRect.left) * (W / svgRect.width);
-      const idx      = Math.max(0, Math.min(n - 1, Math.round((svgX - PAD.left) / CW * (n - 1))));
-      const h        = history[idx];
-      const cx       = toX(idx), cy = toY(h.price);
-
-      xline.setAttribute('x1', cx.toFixed(1)); xline.setAttribute('x2', cx.toFixed(1));
-      xline.style.display = '';
-      dot.setAttribute('cx', cx.toFixed(1)); dot.setAttribute('cy', cy.toFixed(1));
-      dot.style.display = '';
-
-      const tipX = (cx / W) * svgRect.width + svgRect.left - wrapRect.left;
-      const tipY = (cy / H) * svgRect.height;
-      tooltip.style.display = 'flex';
-      tooltip.style.left    = Math.min(tipX + 14, wrapRect.width - 150) + 'px';
-      tooltip.style.top     = Math.max(tipY - 40, 4) + 'px';
-      tooltip.innerHTML     = `<span class="tip-date">${h.date}</span><span class="tip-price">${Math.round(h.price).toLocaleString('ko-KR')}원/g</span>`;
-    });
-
-    overlay.addEventListener('mouseleave', () => {
-      xline.style.display = dot.style.display = 'none';
-      tooltip.style.display = 'none';
-    });
-
-    document.getElementById('chart-note').textContent =
-      `${history[0].date} ~ ${history[n-1].date} · ${n}거래일 기준`;
+    _chartHistory = history;
+    renderChart(_chartHistory, _chartPeriod, _chartUnit);
   } catch (e) { console.error('[GoldDecode] 차트 렌더링 오류:', e); }
 }
 
@@ -369,6 +377,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById(id).addEventListener('input', function() {
       applyComma(this);
     });
+  });
+
+  // 차트 필터
+  document.getElementById('chart-period-group').addEventListener('click', e => {
+    const btn = e.target.closest('.chart-filter-btn[data-period]');
+    if (!btn || !_chartHistory) return;
+    document.querySelectorAll('#chart-period-group .chart-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _chartPeriod = parseInt(btn.dataset.period, 10);
+    renderChart(_chartHistory, _chartPeriod, _chartUnit);
+  });
+
+  document.getElementById('chart-unit-group').addEventListener('click', e => {
+    const btn = e.target.closest('.chart-filter-btn[data-unit]');
+    if (!btn || !_chartHistory) return;
+    document.querySelectorAll('#chart-unit-group .chart-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _chartUnit = btn.dataset.unit;
+    renderChart(_chartHistory, _chartPeriod, _chartUnit);
   });
 
   // 계산 버튼

@@ -187,7 +187,19 @@
 
     <!-- 최근 금 시세 추이 -->
     <div class="info-card">
-      <div class="info-card-title">📈 최근 금 시세 추이 (24K · 원/g)</div>
+      <div class="info-card-title">📈 최근 금 시세 추이 (24K)</div>
+      <div class="chart-filters">
+        <div class="chart-filter-group" id="chart-period-group">
+          <button class="chart-filter-btn" data-period="1">1개월</button>
+          <button class="chart-filter-btn" data-period="3">3개월</button>
+          <button class="chart-filter-btn" data-period="6">6개월</button>
+          <button class="chart-filter-btn active" data-period="12">1년</button>
+        </div>
+        <div class="chart-filter-group" id="chart-unit-group">
+          <button class="chart-filter-btn active" data-unit="g">1g당</button>
+          <button class="chart-filter-btn" data-unit="don">1돈당</button>
+        </div>
+      </div>
       <div class="chart-wrap">
         <svg id="price-chart" width="100%" viewBox="0 0 600 220" preserveAspectRatio="xMidYMid meet"></svg>
         <div id="chart-tooltip" class="chart-tooltip" style="display:none;"></div>
