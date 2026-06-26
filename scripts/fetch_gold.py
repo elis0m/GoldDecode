@@ -15,28 +15,44 @@ OUT_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold-data.json
 KST = timezone(timedelta(hours=9))
 
 
+HEADERS = {
+    'Referer':    'https://openapi.krx.co.kr',
+    'User-Agent': 'Mozilla/5.0 (compatible; GoldDecode/1.0)',
+    'Accept':     'application/json, text/plain, */*',
+}
+
+
 def generate_otp(auth_key: str) -> str:
     params = urllib.parse.urlencode({
-        'auth':          auth_key,
-        'name':          '금시장시세',
-        'ptnm':          'MDC0201060201',
-        'mktsel':        'G',
-        'share':         '1',
-        'money':         '3',
-        'csvxls_isNo':   'false',
-    }).encode()
-    req = urllib.request.Request(OTP_URL, data=params, method='POST')
-    req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        'auth':        auth_key,
+        'name':        '금시장시세',
+        'ptnm':        'MDC0201060201',
+        'mktsel':      'G',
+        'share':       '1',
+        'money':       '3',
+        'csvxls_isNo': 'false',
+    })
+    url = f'{OTP_URL}?{params}'
+    req = urllib.request.Request(url, method='GET', headers=HEADERS)
     with urllib.request.urlopen(req, timeout=15) as resp:
-        return resp.read().decode().strip()
+        otp = resp.read().decode().strip()
+    if not otp:
+        raise ValueError('OTP 응답이 비어있습니다.')
+    print(f'[fetch_gold] OTP 발급: {otp[:8]}...')
+    return otp
 
 
 def fetch_gold_data(otp: str) -> list:
     body = urllib.parse.urlencode({'code': otp}).encode()
-    req = urllib.request.Request(DATA_URL, data=body, method='POST')
+    req = urllib.request.Request(DATA_URL, data=body, method='POST', headers=HEADERS)
     req.add_header('Content-Type', 'application/x-www-form-urlencoded')
     with urllib.request.urlopen(req, timeout=15) as resp:
-        return json.loads(resp.read())
+        raw = resp.read()
+    data = json.loads(raw)
+    # 응답이 dict인 경우(단일 항목) list로 통일
+    if isinstance(data, dict):
+        data = list(data.values())[0] if data else []
+    return data
 
 
 def parse_price(rows: list) -> dict:
