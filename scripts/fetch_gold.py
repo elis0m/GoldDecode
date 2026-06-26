@@ -1,106 +1,76 @@
 """
-GitHub Actions에서 실행: KRX Open API → data/gold-data.json 갱신
+GitHub Actions에서 실행: KRX Open API (data-dbg.krx.co.kr) → data/gold-data.json 갱신
 환경변수: KRX_API_KEY (GitHub Secrets — openapi.krx.co.kr 발급 키)
+
+API Spec:
+  POST https://data-dbg.krx.co.kr/svc/apis/gen/gold_bydd_trd
+  Header: AUTH_KEY: {api_key}
+  Body:   {"basDd": "YYYYMMDD"}
+  Response: {"OutBlock_1": [{BAS_DD, ISU_NM, TDD_CLSPRC, ...}]}
 """
-import os, json, sys
+import os, sys, json
 from datetime import datetime, timezone, timedelta
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
-try:
-    import requests
-except ImportError:
-    import subprocess
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests', '-q'])
-    import requests
-
-OTP_URL  = 'https://openapi.krx.co.kr/contents/COM/GenerateOTP.jspx'
-DATA_URL = 'https://openapi.krx.co.kr/contents/MDC/MDCA/MDCA11/MDCA11.jspx'
-OUT_PATH = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold-data.json')
+ENDPOINT = 'https://data-dbg.krx.co.kr/svc/apis/gen/gold_bydd_trd'
+OUT_PATH  = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold-data.json')
 KST = timezone(timedelta(hours=9))
 
-SESSION_HEADERS = {
-    'User-Agent': (
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/124.0.0.0 Safari/537.36'
-    ),
-    'Referer': 'https://openapi.krx.co.kr/',
-    'Origin':  'https://openapi.krx.co.kr',
-    'Accept':  'application/json, text/plain, */*',
-}
+
+def fetch_by_date(api_key: str, date_str: str) -> list:
+    """date_str: 'YYYYMMDD' 형식"""
+    body = json.dumps({'basDd': date_str}).encode()
+    req  = Request(
+        ENDPOINT, data=body, method='POST',
+        headers={
+            'AUTH_KEY':     api_key,
+            'Content-Type': 'application/json',
+            'Accept':       'application/json',
+        },
+    )
+    with urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read())
+    return data.get('OutBlock_1', [])
 
 
-def generate_otp(session: requests.Session, auth_key: str) -> str:
-    params = {
-        'auth':        auth_key,
-        'name':        '금시장시세',
-        'ptnm':        'MDC0201060201',
-        'mktsel':      'G',
-        'share':       '1',
-        'money':       '3',
-        'csvxls_isNo': 'false',
-    }
-    resp = session.get(OTP_URL, params=params, timeout=15)
-    if resp.status_code != 200:
-        print(f'[OTP 실패] HTTP {resp.status_code}')
-        print(f'[OTP 응답] {resp.text[:500]}')
-        resp.raise_for_status()
-    otp = resp.text.strip()
-    if not otp:
-        raise ValueError('OTP 응답이 비어있습니다.')
-    print(f'[fetch_gold] OTP 발급 성공: {otp[:8]}...')
-    return otp
+def find_latest_price(api_key: str) -> dict:
+    """오늘부터 최대 7일 전까지 거슬러 올라가며 유효한 종가 탐색"""
+    today = datetime.now(KST)
+    for delta in range(7):
+        target = today - timedelta(days=delta)
+        date_str = target.strftime('%Y%m%d')
+        print(f'[fetch_gold] 조회 시도: {date_str}')
 
+        try:
+            rows = fetch_by_date(api_key, date_str)
+        except HTTPError as e:
+            print(f'[fetch_gold] HTTP {e.code} — {date_str} 건너뜀')
+            continue
 
-def fetch_gold_data(session: requests.Session, otp: str) -> list:
-    resp = session.post(DATA_URL, data={'code': otp}, timeout=15)
-    if resp.status_code != 200:
-        print(f'[DATA 실패] HTTP {resp.status_code}')
-        print(f'[DATA 응답] {resp.text[:500]}')
-        resp.raise_for_status()
-    data = resp.json()
-    print(f'[fetch_gold] 응답 타입: {type(data).__name__}, 키: {list(data.keys()) if isinstance(data, dict) else "list"}')
-    # 응답 구조에 따라 리스트 추출
-    if isinstance(data, list):
-        return data
-    if isinstance(data, dict):
-        for v in data.values():
-            if isinstance(v, list):
-                return v
-    return []
+        for row in rows:
+            name  = row.get('ISU_NM', '')
+            price = row.get('TDD_CLSPRC', '-').replace(',', '')
+            if '99.99' in name and price not in ('-', '', '0'):
+                p = float(price)
+                d = row.get('BAS_DD', date_str)
+                formatted = f'{d[:4]}-{d[4:6]}-{d[6:]}' if len(d) == 8 else d
+                print(f'[fetch_gold] 종목: {name} / {p:,.0f}원/g / {formatted}')
+                return {'price': p, 'unit': '원/g', 'basis': '24K',
+                        'date': formatted, 'source': 'krx-openapi'}
 
-
-def parse_price(rows: list) -> dict:
-    print(f'[fetch_gold] 행 수: {len(rows)}, 첫 행 키: {list(rows[0].keys()) if rows else "없음"}')
-    for row in rows:
-        name = row.get('ISU_NM', '') or row.get('itmsNm', '')
-        if '99.99' in name:
-            raw_price = (row.get('TDD_CLSPRC') or row.get('clpr') or '0').replace(',', '')
-            price = float(raw_price)
-            raw_date = row.get('BAS_DD') or row.get('basDt') or ''
-            date = raw_date.replace('/', '-')
-            if len(date) == 8:  # YYYYMMDD
-                date = f'{date[:4]}-{date[4:6]}-{date[6:]}'
-            print(f'[fetch_gold] 종목: {name} / {price:,.0f}원/g / {date}')
-            return {'price': price, 'unit': '원/g', 'basis': '24K',
-                    'date': date, 'source': 'krx-openapi'}
-    raise ValueError(f'금 99.99 종목 없음. 첫 행: {rows[0] if rows else "없음"}')
+    raise RuntimeError('7일치 조회에서 유효한 금 시세를 찾지 못했습니다.')
 
 
 def main():
     api_key = os.environ.get('KRX_API_KEY', '')
     if not api_key:
-        raise RuntimeError('KRX_API_KEY 환경변수가 없습니다.')
+        sys.exit('KRX_API_KEY 환경변수가 없습니다.')
 
-    session = requests.Session()
-    session.headers.update(SESSION_HEADERS)
-
-    otp    = generate_otp(session, api_key)
-    rows   = fetch_gold_data(session, otp)
-    result = parse_price(rows)
-
+    result = find_latest_price(api_key)
     with open(OUT_PATH, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
-    print(f'[fetch_gold] 저장 완료 → {OUT_PATH}')
+    print(f'[fetch_gold] 저장 완료: {result["price"]:,.0f}원/g ({result["date"]})')
 
 
 if __name__ == '__main__':

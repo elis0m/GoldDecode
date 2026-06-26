@@ -2,8 +2,7 @@ name: Fetch Gold Price
 
 on:
   schedule:
-    # 평일 KST 09:00~16:00 (UTC 00:00~07:00) 매시 정각
-    - cron: '0 0-7 * * 1-5'
+    - cron: '0 0-7 * * 1-5'   # 평일 KST 09~16시 매시 정각
   workflow_dispatch:
 
 jobs:
@@ -20,10 +19,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
-        run: pip install requests -q
-
-      - name: Fetch KRX Gold Price
+      - name: Fetch Gold Price
         run: python scripts/fetch_gold.py
         env:
           KRX_API_KEY: ${{ secrets.KRX_API_KEY }}
