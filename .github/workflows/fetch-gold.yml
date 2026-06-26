@@ -1,0 +1,34 @@
+name: Fetch Gold Price
+
+on:
+  schedule:
+    # 평일 KST 09:00~16:00 (UTC 00:00~07:00) 매시 정각
+    - cron: '0 0-7 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch KRX Gold Price
+        run: python scripts/fetch_gold.py
+        env:
+          KRX_API_KEY: ${{ secrets.KRX_API_KEY }}
+
+      - name: Commit updated gold-data.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/gold-data.json
+          git diff --cached --quiet || git commit -m "chore: update gold price [skip ci]"
+          git push

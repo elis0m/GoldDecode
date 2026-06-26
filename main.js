@@ -1,0 +1,187 @@
+// ── 상태 ──────────────────────────────────────────────────────────────────────
+let currentSpotPrice = null;
+let currentMode = 'forward'; // 'forward' = 순산, 'reverse' = 역산
+
+// ── 유틸 ──────────────────────────────────────────────────────────────────────
+function formatKRW(n) {
+  if (isNaN(n) || n === null) return '-';
+  return Math.round(n).toLocaleString('ko-KR') + '원';
+}
+
+function convertWeight(value, fromUnit) {
+  const num = parseFloat(value);
+  if (isNaN(num)) return '';
+  return fromUnit === 'g'
+    ? (num / DON_TO_GRAM).toFixed(4)
+    : (num * DON_TO_GRAM).toFixed(4);
+}
+
+// ── 시세 로드 (JSON → 수동) ───────────────────────────────────────────────────
+// KRX Open API는 CORS 미지원 → GitHub Actions가 갱신한 gold-data.json만 사용
+async function loadGoldPrice() {
+  setSpotStatus('loading');
+
+  try {
+    const res = await fetch(FALLBACK_JSON, { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const json = await res.json();
+      if (json?.price > 0) {
+        setSpotPrice(json.price, 'cache', json.date || '');
+        return;
+      }
+    }
+  } catch (_) {}
+
+  setSpotStatus('manual');
+}
+
+function setSpotPrice(price, source, date) {
+  currentSpotPrice = price;
+  document.getElementById('spot-price-display').textContent =
+    `${price.toLocaleString('ko-KR')}원/g (24K)`;
+  const badge = document.getElementById('spot-badge');
+  badge.textContent = `🕐 ${date} 기준 (KRX)`;
+  badge.className = 'spot-badge cached';
+  document.getElementById('spot-manual-row').style.display = 'none';
+  document.getElementById('spot-info').style.display = 'flex';
+}
+
+function setSpotStatus(status) {
+  const info = document.getElementById('spot-info');
+  const manual = document.getElementById('spot-manual-row');
+  if (status === 'loading') {
+    document.getElementById('spot-price-display').textContent = '시세 불러오는 중...';
+    info.style.display = 'flex';
+    manual.style.display = 'none';
+  } else if (status === 'manual') {
+    document.getElementById('spot-price-display').textContent = '시세 로드 실패';
+    document.getElementById('spot-badge').textContent = '⚠️ 수동 입력 필요';
+    document.getElementById('spot-badge').className = 'spot-badge error';
+    info.style.display = 'flex';
+    manual.style.display = 'flex';
+  }
+}
+
+// ── 계산 로직 ──────────────────────────────────────────────────────────────────
+function getSpotPrice() {
+  const manualInput = document.getElementById('spot-manual').value;
+  if (currentSpotPrice) return currentSpotPrice;
+  const manual = parseFloat(manualInput);
+  return isNaN(manual) ? null : manual;
+}
+
+function calcSalePrice(spotPrice, purity, weightG, workmanship) {
+  const goldCost = spotPrice * purity * weightG;
+  const vat = goldCost * VAT_RATE;
+  const total = goldCost + vat + workmanship;
+  return { goldCost, vat, workmanship, total };
+}
+
+function calcWorkmanship(spotPrice, purity, weightG, actualPrice) {
+  const goldCost = spotPrice * purity * weightG;
+  const vat = goldCost * VAT_RATE;
+  const workmanship = actualPrice - goldCost - vat;
+  return { goldCost, vat, workmanship, total: actualPrice };
+}
+
+// ── UI 이벤트 ──────────────────────────────────────────────────────────────────
+function getSelectedPurity() {
+  return document.querySelector('.purity-btn.active')?.dataset.purity || '24K';
+}
+
+function getWeightInGrams() {
+  const val = parseFloat(document.getElementById('weight-input').value);
+  const unit = document.getElementById('weight-unit').value;
+  if (isNaN(val)) return null;
+  return unit === 'don' ? val * DON_TO_GRAM : val;
+}
+
+function onCalculate() {
+  const spotPrice = getSpotPrice();
+  const purity = PURITY[getSelectedPurity()];
+  const weightG = getWeightInGrams();
+
+  if (!spotPrice) return showError('금 시세를 입력해주세요.');
+  if (!weightG || weightG <= 0) return showError('무게를 입력해주세요.');
+
+  let result;
+  if (currentMode === 'forward') {
+    const workmanship = parseFloat(document.getElementById('workmanship-input').value);
+    if (isNaN(workmanship) || workmanship < 0) return showError('세공비를 입력해주세요.');
+    result = calcSalePrice(spotPrice, purity, weightG, workmanship);
+  } else {
+    const actualPrice = parseFloat(document.getElementById('actual-price-input').value);
+    if (isNaN(actualPrice) || actualPrice <= 0) return showError('실제 구매가를 입력해주세요.');
+    result = calcWorkmanship(spotPrice, purity, weightG, actualPrice);
+  }
+
+  showResult(result);
+}
+
+function showResult({ goldCost, vat, workmanship, total }) {
+  document.getElementById('result-gold-cost').textContent = formatKRW(goldCost);
+  document.getElementById('result-vat').textContent = formatKRW(vat);
+  document.getElementById('result-workmanship').textContent = formatKRW(workmanship);
+  document.getElementById('result-total').textContent = formatKRW(total);
+  const section = document.getElementById('result-section');
+  section.style.display = 'block';
+  section.classList.add('animate-in');
+  if (workmanship < 0) {
+    document.getElementById('result-workmanship').classList.add('negative');
+    document.getElementById('result-note').textContent =
+      '⚠️ 세공비가 음수입니다. 입력값을 확인하세요.';
+    document.getElementById('result-note').style.display = 'block';
+  } else {
+    document.getElementById('result-workmanship').classList.remove('negative');
+    document.getElementById('result-note').style.display = 'none';
+  }
+}
+
+function showError(msg) {
+  alert(msg);
+}
+
+// ── 초기화 ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // 시세 로드
+  loadGoldPrice();
+
+  // 모드 토글
+  document.querySelectorAll('input[name="mode"]').forEach(radio => {
+    radio.addEventListener('change', e => {
+      currentMode = e.target.value;
+      document.getElementById('forward-fields').style.display =
+        currentMode === 'forward' ? 'block' : 'none';
+      document.getElementById('reverse-fields').style.display =
+        currentMode === 'reverse' ? 'block' : 'none';
+      document.getElementById('result-section').style.display = 'none';
+    });
+  });
+
+  // 순도 버튼
+  document.querySelectorAll('.purity-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.purity-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // 무게 단위 전환 — 입력값 자동 환산
+  document.getElementById('weight-unit').addEventListener('change', e => {
+    const input = document.getElementById('weight-input');
+    const newUnit = e.target.value;
+    const fromUnit = newUnit === 'g' ? 'don' : 'g';
+    if (input.value) {
+      input.value = convertWeight(input.value, fromUnit);
+    }
+  });
+
+  // 계산 버튼
+  document.getElementById('calc-btn').addEventListener('click', onCalculate);
+
+  // 수동 시세 입력
+  document.getElementById('spot-manual').addEventListener('input', e => {
+    const val = parseFloat(e.target.value);
+    if (!isNaN(val) && val > 0) currentSpotPrice = val;
+  });
+});

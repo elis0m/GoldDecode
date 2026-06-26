@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoldDecode · 금값 해독기</title>
+  <meta name="description" content="실시간 금 시세 기반 세공비 역산 · 예상 판매가 계산기" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header class="app-header">
+    <h1 class="app-title">💍 GoldDecode<span> · 금값 해독기</span></h1>
+    <p class="app-slogan">당신이 지불하는 금값, 그 안을 해독합니다</p>
+  </header>
+
+  <!-- 실시간 시세 카드 -->
+  <div class="spot-card">
+    <div id="spot-info" style="display:none;">
+      <span id="spot-price-display" class="spot-price-text">-</span>
+      <span id="spot-badge" class="spot-badge">-</span>
+    </div>
+    <div id="spot-manual-row" class="spot-manual-row" style="display:none;">
+      <label for="spot-manual">시세 직접 입력</label>
+      <input type="number" id="spot-manual" placeholder="예: 196000" min="0" step="100" style="max-width:180px;" />
+      <span style="font-size:0.85rem;color:var(--text-muted);">원/g</span>
+    </div>
+  </div>
+
+  <!-- 모드 선택 -->
+  <div class="card">
+    <div class="card-title">계산 모드</div>
+    <div class="mode-toggle">
+      <label>
+        <input type="radio" name="mode" value="forward" checked />
+        <span class="mode-label-text">📊 순산 모드<br/><small style="font-weight:400;color:var(--text-muted);font-size:0.75rem;">세공비 → 예상 판매가</small></span>
+      </label>
+      <label>
+        <input type="radio" name="mode" value="reverse" />
+        <span class="mode-label-text">🔍 역산 모드<br/><small style="font-weight:400;color:var(--text-muted);font-size:0.75rem;">구매가 → 세공비 추정</small></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- 입력 폼 -->
+  <div class="card">
+    <div class="card-title">정보 입력</div>
+
+    <!-- 순도 선택 -->
+    <div class="form-row">
+      <label class="form-label">순도</label>
+      <div class="purity-group">
+        <button class="purity-btn active" data-purity="24K">24K</button>
+        <button class="purity-btn" data-purity="18K">18K</button>
+        <button class="purity-btn" data-purity="14K">14K</button>
+      </div>
+    </div>
+
+    <!-- 무게 -->
+    <div class="form-row">
+      <label class="form-label" for="weight-input">무게</label>
+      <div class="input-group">
+        <input type="number" id="weight-input" placeholder="예: 3.5" min="0" step="0.01" />
+        <select id="weight-unit">
+          <option value="g">g</option>
+          <option value="don">돈</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 순산 모드 필드 -->
+    <div id="forward-fields">
+      <div class="form-row">
+        <label class="form-label" for="workmanship-input">세공비</label>
+        <div class="input-group">
+          <input type="number" id="workmanship-input" placeholder="예: 50000" min="0" step="1000" />
+          <span style="color:var(--text-muted);white-space:nowrap;">원</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 역산 모드 필드 -->
+    <div id="reverse-fields" style="display:none;">
+      <div class="form-row">
+        <label class="form-label" for="actual-price-input">실제 구매가</label>
+        <div class="input-group">
+          <input type="number" id="actual-price-input" placeholder="예: 750000" min="0" step="1000" />
+          <span style="color:var(--text-muted);white-space:nowrap;">원</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 계산 버튼 -->
+  <button class="calc-btn" id="calc-btn">계산하기</button>
+
+  <!-- 결과 -->
+  <div class="result-section" id="result-section">
+    <div class="card-title">📊 계산 결과</div>
+    <div class="result-row">
+      <span>순금 원가</span>
+      <span class="result-value" id="result-gold-cost">-</span>
+    </div>
+    <div class="result-row">
+      <span>부가세 (10%)</span>
+      <span class="result-value" id="result-vat">-</span>
+    </div>
+    <div class="result-row">
+      <span>세공비</span>
+      <span class="result-value" id="result-workmanship">-</span>
+    </div>
+    <div class="result-row total">
+      <span>최종 가격</span>
+      <span class="result-value" id="result-total">-</span>
+    </div>
+    <p class="result-note" id="result-note"></p>
+  </div>
+
+  <!-- 푸터 -->
+  <footer>
+    <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다.</p>
+    <p>세공비는 업체마다 상이하며, 보석류(다이아몬드 등) 가격은 별도입니다.</p>
+    <p>부가가치세법 제14조 적용 (세율 10%) · KRX 금시세 기준</p>
+    <p style="margin-top:8px;">주말·공휴일에는 직전 거래일 시세가 표시됩니다.</p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

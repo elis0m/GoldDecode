@@ -1,0 +1,293 @@
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8D08A;
+  --gold-dark: #8B6914;
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface2: #242424;
+  --border: #2e2e2e;
+  --text: #f0f0f0;
+  --text-muted: #888;
+  --red: #e05252;
+  --green: #52c98a;
+  --radius: 12px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 48px;
+}
+
+/* ── 헤더 ── */
+.app-header {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -0.5px;
+}
+
+.app-title span { color: var(--text); }
+
+.app-slogan {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── 시세 표시 ── */
+.spot-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+#spot-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spot-price-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.spot-badge {
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.spot-badge.live { background: rgba(82,201,138,0.15); color: var(--green); }
+.spot-badge.cached { background: rgba(201,168,76,0.15); color: var(--gold); }
+.spot-badge.error { background: rgba(224,82,82,0.15); color: var(--red); }
+
+.spot-manual-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.spot-manual-row label { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; }
+
+/* ── 카드 공통 ── */
+.card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+/* ── 모드 토글 ── */
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-toggle label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.mode-toggle input[type="radio"] { display: none; }
+
+.mode-toggle input[type="radio"]:checked + .mode-label-text {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.mode-toggle label:has(input:checked) {
+  border-color: var(--gold);
+  background: rgba(201,168,76,0.08);
+}
+
+/* ── 입력 폼 ── */
+.form-row {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+input[type="number"], select {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1rem;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+input[type="number"]:focus, select:focus {
+  border-color: var(--gold);
+}
+
+select { cursor: pointer; max-width: 100px; }
+
+/* 순도 버튼 */
+.purity-group {
+  display: flex;
+  gap: 8px;
+}
+
+.purity-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.purity-btn.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,168,76,0.1);
+}
+
+/* ── 계산 버튼 ── */
+.calc-btn {
+  width: 100%;
+  max-width: 480px;
+  padding: 16px;
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  margin-bottom: 16px;
+}
+
+.calc-btn:hover { background: var(--gold-light); }
+.calc-btn:active { transform: scale(0.98); }
+
+/* ── 결과 ── */
+.result-section {
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border: 1.5px solid var(--gold-dark);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: none;
+}
+
+.result-section.animate-in {
+  animation: fadeUp 0.25s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.result-row:last-of-type { border-bottom: none; }
+
+.result-row.total {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gold);
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1.5px solid var(--gold-dark);
+}
+
+.result-value { font-variant-numeric: tabular-nums; }
+.result-value.negative { color: var(--red); }
+
+.result-note {
+  font-size: 0.8rem;
+  color: var(--red);
+  margin-top: 10px;
+  display: none;
+}
+
+/* ── 푸터 ── */
+footer {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 24px;
+  line-height: 1.6;
+}
+
+/* ── 반응형 ── */
+@media (max-width: 360px) {
+  .app-title { font-size: 1.35rem; }
+  .spot-price-text { font-size: 1.15rem; }
+}
