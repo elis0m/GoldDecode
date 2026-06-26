@@ -320,6 +320,7 @@ select { cursor: pointer; max-width: 100px; }
   border-radius: var(--radius);
   padding: 20px;
   display: none;
+  margin-bottom: 16px;
 }
 
 .result-section.animate-in {
@@ -341,6 +342,8 @@ select { cursor: pointer; max-width: 100px; }
 }
 
 .result-row:last-of-type { border-bottom: none; }
+.result-row.total + .result-row,
+.result-row:has(+ .result-row.total) { border-bottom: none; }
 
 .result-row.total {
   font-size: 1.15rem;
