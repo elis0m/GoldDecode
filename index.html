@@ -15,7 +15,7 @@
 
   <!-- 헤더 -->
   <header class="app-header">
-    <h1 class="app-title">🪙 GoldDecode</h1>
+    <h1 class="app-title"><img src="gold.png" alt="금괴" class="title-icon" />GoldDecode</h1>
     <p class="app-subtitle">금값 해독기</p>
     <p class="app-slogan">당신이 지불하는 금값, 그 안을 해독합니다</p>
   </header>
@@ -23,11 +23,11 @@
   <!-- 실시간 시세 카드 -->
   <div class="spot-card">
     <div id="spot-info" style="display:none;">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <span id="spot-price-display" class="spot-price-text">-</span>
-        <span id="spot-badge" class="spot-badge">-</span>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap;min-width:0;">
+        <span id="spot-price-display" class="spot-price-text" style="white-space:nowrap;">-</span>
+        <span id="spot-badge" class="spot-badge" style="white-space:nowrap;">-</span>
       </div>
-      <button id="spot-edit-btn" class="spot-edit-btn" title="시세 직접 입력">✏️</button>
+      <button id="spot-edit-btn" class="spot-edit-btn" title="시세 직접 입력">…</button>
     </div>
     <div id="spot-manual-row" class="spot-manual-row" style="display:none;">
       <label for="spot-manual">직접 입력</label>
