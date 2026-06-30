@@ -7,113 +7,145 @@
   <link rel="icon" href="gold.ico" type="image/x-icon" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    .page-card {
+    body {
+      align-items: flex-start;
+      padding: 48px 24px 80px;
+    }
+    .doc {
       width: 100%;
-      max-width: 480px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 24px;
-      margin-bottom: 16px;
+      max-width: 560px;
+      margin: 0 auto;
     }
-    .page-card h2 {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 12px;
-    }
-    .page-card p {
-      font-size: 0.9rem;
+    .doc-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      line-height: 1.7;
-      margin-bottom: 10px;
+      text-decoration: none;
+      margin-bottom: 40px;
+      letter-spacing: 0.01em;
     }
-    .page-card p:last-child { margin-bottom: 0; }
-    .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
-      font-size: 0.85rem;
+    .doc-back:hover { color: var(--gold); }
+    .doc-wordmark {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .doc-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 40px;
+      line-height: 1.2;
+    }
+    .doc-section {
+      margin-bottom: 40px;
+    }
+    .doc-section h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .doc-section p {
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 10px;
+      opacity: 0.85;
+    }
+    .doc-section p:last-child { margin-bottom: 0; }
+    .doc-dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 24px;
+      font-size: 0.88rem;
+    }
+    .doc-dl dt {
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding-top: 1px;
+    }
+    .doc-dl dd {
+      color: var(--text);
+      opacity: 0.85;
+      line-height: 1.6;
+    }
+    .doc-link {
+      color: var(--gold);
+      text-decoration: none;
+    }
+    .doc-link:hover { text-decoration: underline; }
+    .doc-footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 16px;
+    }
+    .doc-footer a {
       color: var(--text-muted);
       text-decoration: none;
     }
-    .back-link:hover { color: var(--gold); }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-      margin-top: 8px;
-    }
-    .data-table td {
-      padding: 8px 4px;
-      border-bottom: 1px solid var(--border);
-      color: var(--text-muted);
-      vertical-align: top;
-    }
-    .data-table td:first-child {
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-      padding-right: 16px;
-      width: 40%;
-    }
-    .data-table tr:last-child td { border-bottom: none; }
+    .doc-footer a:hover { color: var(--gold); }
   </style>
 </head>
 <body>
 
   <button id="theme-toggle" class="theme-toggle" title="라이트/다크 모드 전환" aria-label="테마 전환">🌙</button>
 
-  <header class="app-header">
-    <h1 class="app-title"><img src="gold.png" alt="금괴" class="title-icon" />GoldDecode</h1>
-    <p class="app-subtitle">금값 해독기</p>
-  </header>
+  <div class="doc">
+    <a href="index.html" class="doc-back">← GoldDecode</a>
 
-  <a href="index.html" class="back-link">← 메인으로 돌아가기</a>
+    <p class="doc-wordmark">GoldDecode</p>
+    <h1 class="doc-title">About</h1>
 
-  <div class="page-card">
-    <h2>서비스 소개</h2>
-    <p>GoldDecode는 금 악세사리 구매 시 내가 지불하는 금액 속 세공비가 얼마인지 역산하거나, 세공비를 입력해 예상 판매가를 계산하는 웹 계산기입니다.</p>
-    <p>금을 살 때 소비자가 실제로 지불하는 금액에는 순금 원가, 부가세(10%), 세공비·브랜드 마진이 포함되어 있습니다. 이 구조를 투명하게 보여주는 것이 GoldDecode의 목적입니다.</p>
+    <div class="doc-section">
+      <h2>서비스 소개</h2>
+      <p>GoldDecode는 금 악세사리 구매 시 지불하는 금액 속 세공비가 얼마인지 역산하거나, 세공비를 입력해 예상 판매가를 계산하는 웹 계산기입니다.</p>
+      <p>금 구매가에는 순금 원가, 부가세(10%), 세공비·브랜드 마진이 포함되어 있습니다. 이 구조를 투명하게 보여주는 것이 GoldDecode의 목적입니다.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>데이터 출처</h2>
+      <dl class="doc-dl">
+        <dt>금 시세</dt>
+        <dd>KRX Open API — 당일 24K 금 종가 기준</dd>
+        <dt>갱신 주기</dt>
+        <dd>평일 09:00 ~ 16:00 매시간 자동 갱신</dd>
+        <dt>시세 기준</dt>
+        <dd>KRX 금 시장 24K (99.99%) 종가 (원/g)</dd>
+        <dt>주말·공휴일</dt>
+        <dd>직전 거래일 시세 표시</dd>
+      </dl>
+    </div>
+
+    <div class="doc-section">
+      <h2>주의사항</h2>
+      <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다. 세공비는 업체마다 상이하며, 보석류 가격은 금값과 별도입니다.</p>
+      <p>계산 결과는 금융·투자 조언이 아닙니다. 실제 구매 및 투자 결정은 전문가와 상담 후 진행하세요.</p>
+    </div>
+
+    <div class="doc-section">
+      <h2>오픈소스</h2>
+      <p>MIT 라이선스 · <a href="https://github.com/elis0m/GoldDecode" class="doc-link" target="_blank" rel="noopener">github.com/elis0m/GoldDecode</a></p>
+    </div>
+
+    <div class="doc-footer">
+      <a href="index.html">메인</a>
+      <a href="privacy.html">개인정보처리방침</a>
+    </div>
   </div>
-
-  <div class="page-card">
-    <h2>데이터 출처</h2>
-    <table class="data-table">
-      <tr>
-        <td>금 시세</td>
-        <td>KRX Open API (data-dbg.krx.co.kr) — 당일 24K 금 종가 기준</td>
-      </tr>
-      <tr>
-        <td>갱신 주기</td>
-        <td>평일 09:00 ~ 16:00 매시간 자동 갱신 (GitHub Actions)</td>
-      </tr>
-      <tr>
-        <td>시세 기준</td>
-        <td>KRX 금 시장 24K (99.99%) 종가 (원/g)</td>
-      </tr>
-      <tr>
-        <td>주말·공휴일</td>
-        <td>직전 거래일 시세 표시</td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="page-card">
-    <h2>주의사항</h2>
-    <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다. 세공비는 업체마다 상이하며, 보석류(다이아몬드 등) 가격은 금값과 별도입니다.</p>
-    <p>계산 결과는 어떠한 금융·투자 조언도 아닙니다. 실제 구매 및 투자 결정은 전문가와 상담 후 진행하세요.</p>
-  </div>
-
-  <div class="page-card">
-    <h2>오픈소스</h2>
-    <p>GoldDecode는 MIT 라이선스 오픈소스 프로젝트입니다.</p>
-    <p><a href="https://github.com/elis0m/GoldDecode" style="color:var(--gold);">github.com/elis0m/GoldDecode</a></p>
-  </div>
-
-  <footer>
-    <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다.</p>
-    <p><a href="index.html" style="color:var(--text-muted);">메인</a> · <a href="privacy.html" style="color:var(--text-muted);">개인정보처리방침</a></p>
-  </footer>
 
   <script src="config.js"></script>
   <script>
