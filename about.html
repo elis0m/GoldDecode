@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — GoldDecode</title>
+  <link rel="icon" href="gold.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .page-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      margin-bottom: 16px;
+    }
+    .page-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .page-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+    .page-card p:last-child { margin-bottom: 0; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--gold); }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 8px;
+    }
+    .data-table td {
+      padding: 8px 4px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+    .data-table td:first-child {
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      padding-right: 16px;
+      width: 40%;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+  </style>
+</head>
+<body>
+
+  <button id="theme-toggle" class="theme-toggle" title="라이트/다크 모드 전환" aria-label="테마 전환">🌙</button>
+
+  <header class="app-header">
+    <h1 class="app-title"><img src="gold.png" alt="금괴" class="title-icon" />GoldDecode</h1>
+    <p class="app-subtitle">금값 해독기</p>
+  </header>
+
+  <a href="index.html" class="back-link">← 메인으로 돌아가기</a>
+
+  <div class="page-card">
+    <h2>서비스 소개</h2>
+    <p>GoldDecode는 금 악세사리 구매 시 내가 지불하는 금액 속 세공비가 얼마인지 역산하거나, 세공비를 입력해 예상 판매가를 계산하는 웹 계산기입니다.</p>
+    <p>금을 살 때 소비자가 실제로 지불하는 금액에는 순금 원가, 부가세(10%), 세공비·브랜드 마진이 포함되어 있습니다. 이 구조를 투명하게 보여주는 것이 GoldDecode의 목적입니다.</p>
+  </div>
+
+  <div class="page-card">
+    <h2>데이터 출처</h2>
+    <table class="data-table">
+      <tr>
+        <td>금 시세</td>
+        <td>KRX Open API (data-dbg.krx.co.kr) — 당일 24K 금 종가 기준</td>
+      </tr>
+      <tr>
+        <td>갱신 주기</td>
+        <td>평일 09:00 ~ 16:00 매시간 자동 갱신 (GitHub Actions)</td>
+      </tr>
+      <tr>
+        <td>시세 기준</td>
+        <td>KRX 금 시장 24K (99.99%) 종가 (원/g)</td>
+      </tr>
+      <tr>
+        <td>주말·공휴일</td>
+        <td>직전 거래일 시세 표시</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="page-card">
+    <h2>주의사항</h2>
+    <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다. 세공비는 업체마다 상이하며, 보석류(다이아몬드 등) 가격은 금값과 별도입니다.</p>
+    <p>계산 결과는 어떠한 금융·투자 조언도 아닙니다. 실제 구매 및 투자 결정은 전문가와 상담 후 진행하세요.</p>
+  </div>
+
+  <div class="page-card">
+    <h2>오픈소스</h2>
+    <p>GoldDecode는 MIT 라이선스 오픈소스 프로젝트입니다.</p>
+    <p><a href="https://github.com/elis0m/GoldDecode" style="color:var(--gold);">github.com/elis0m/GoldDecode</a></p>
+  </div>
+
+  <footer>
+    <p>본 계산기는 참고용이며 실제 거래가와 차이가 있을 수 있습니다.</p>
+    <p><a href="index.html" style="color:var(--text-muted);">메인</a> · <a href="privacy.html" style="color:var(--text-muted);">개인정보처리방침</a></p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script>
+    const savedTheme = localStorage.getItem('theme');
+    const toggleBtn = document.getElementById('theme-toggle');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark');
+      toggleBtn.textContent = '🌙';
+    } else {
+      toggleBtn.textContent = '☀️';
+    }
+    toggleBtn.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark');
+      toggleBtn.textContent = isDark ? '🌙' : '☀️';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+  </script>
+</body>
+</html>
